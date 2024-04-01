@@ -3,6 +3,14 @@ from transformers import BlipProcessor, BlipForConditionalGeneration, DetrImageP
 from PIL import Image
 import torch
 import streamlit as st
+from transformers import ViTForImageClassification, ViTImageProcessor
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+from transformers import AutoTokenizer, AutoModel
+import torch.nn.functional as F
+from sklearn.metrics.pairwise import cosine_similarity
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+from diffusers import DiffusionPipeline
 
 # Computer Vision Models
 
@@ -18,7 +26,7 @@ def get_image_caption(image_path):
     return caption
 
 def classify_image(image_path):
-    from transformers import ViTForImageClassification, ViTImageProcessor
+    
     image = Image.open(image_path).convert('RGB')
     model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224')
     processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
@@ -47,7 +55,7 @@ def detect_objects(image_path):
 #Natural-Language Processing Models
 
 def text_summarize(user_text):
-    from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+    
     tokenizer = AutoTokenizer.from_pretrained("google/pegasus-xsum")
     model = AutoModelForSeq2SeqLM.from_pretrained("google/pegasus-xsum")
     inputs = tokenizer(user_text, return_tensors="pt", max_length=1024, truncation=True)
@@ -56,7 +64,7 @@ def text_summarize(user_text):
     return summary
 
 def QA(user_text, context):
-    from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+    
     processor = AutoTokenizer.from_pretrained("deepset/tinyroberta-squad2")
     model = AutoModelForQuestionAnswering.from_pretrained("deepset/tinyroberta-squad2")
     inputs = processor(user_text, context, return_tensors='pt')
@@ -72,9 +80,7 @@ def QA(user_text, context):
     return answer;
 
 def similarity(sentences):
-    from transformers import AutoTokenizer, AutoModel
-    import torch.nn.functional as F
-    from sklearn.metrics.pairwise import cosine_similarity
+    
 
     #Mean Pooling:
 
@@ -96,7 +102,7 @@ def similarity(sentences):
     return similarity_matrix
 
 def gen_image(user_text):
-    from diffusers import DiffusionPipeline
+   
     pipeline = DiffusionPipeline.from_pretrained("dataautogpt3/OpenDalleV1.1")
     image = pipeline(prompt = user_text).images[0]
     image.save("generated_image.png")
